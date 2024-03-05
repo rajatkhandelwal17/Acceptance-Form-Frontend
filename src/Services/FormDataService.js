@@ -29,6 +29,7 @@ export const FormDataService = {
     member: "",
     pricing: "",
     justification: "",
+    levelInfo: [],
   },
   getFormData: function () {
     return this.formData;

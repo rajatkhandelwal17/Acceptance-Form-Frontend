@@ -10,7 +10,7 @@ import DeclarationCheckbox from "./DeclarationCheckbox";
 
 import { ApiService } from "../Services/ApiService";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const AcceptanceCriteriaForm = ({ formData, setFormData }) => {
   const handleInputChange = (e) => {
@@ -22,6 +22,7 @@ const AcceptanceCriteriaForm = ({ formData, setFormData }) => {
   };
 
   const handleFormSubmit = async (formData) => {
+    console.log(formData);
     try {
       await ApiService.submitFormData(formData);
       toast.success("Data Submitted Successfully");

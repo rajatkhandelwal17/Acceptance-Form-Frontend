@@ -6,10 +6,17 @@ import RemoveIcon from "@mui/icons-material/Remove";
 
 const MemberBillingDetails = ({ formData, setFormData }) => {
   const [memberData, setMemberData] = useState([
-    { level: 0, members: 0, pricing: 0 },
+    { level: "", members: "", pricing: "" },
   ]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e, index) => {
+    const { name, value } = e.target;
+    const updatedData = [...memberData];
+    updatedData[index][name] = value;
+    setMemberData(updatedData);
+  };
+
+  const handleInputChangeMisc = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -18,7 +25,7 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
   };
 
   const onAddMember = () => {
-    setMemberData([...memberData, { level: 0, members: 0, pricing: 0 }]);
+    setMemberData([...memberData, { level: "", members: "", pricing: "" }]);
   };
 
   const onRemoveMember = (index) => {
@@ -28,19 +35,36 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
   };
 
   const calculateSrvcBudget = () => {
-    const totalMembers = formData.member;
-    const totalPricing = formData.pricing;
+    let totalServiceCost = 0;
 
-    const currentMonthBudget = totalMembers * totalPricing;
-    formData.srvcMonthlyCost = currentMonthBudget;
+    memberData.forEach((member) => {
+      const members = Number(member.members);
+      const pricing = Number(member.pricing);
+      const memberCost = members * pricing;
+      totalServiceCost += memberCost;
+    });
 
-    const remainingBudget = formData.srvcCost - currentMonthBudget;
+    // Update form data with the total service cost
+    formData.srvcMonthlyCost = totalServiceCost;
+
+    // Update remaining budget
+    const remainingBudget = formData.srvcCost - totalServiceCost;
     formData.srvcRemainBdgt = remainingBudget;
+
+    // Update levelInfo array
+    const levelInfo = memberData.map((member) => ({
+      member: Number(member.members),
+      level: Number(member.level),
+      price: Number(member.pricing),
+    }));
+
+    formData.levelInfo = levelInfo;
 
     setFormData((prevData) => ({
       ...prevData,
-      srvcMonthlyCost: currentMonthBudget,
+      srvcMonthlyCost: totalServiceCost,
       srvcRemainBdgt: remainingBudget,
+      levelInfo: levelInfo,
     }));
   };
 
@@ -83,114 +107,111 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
         <Typography variant="body1">Service Cost Details</Typography>
       </Grid>
 
-      <Grid container spacing={1}>
-        {memberData.map((member, index) => (
-          <Grid
-            container
-            item
-            spacing={1}
-            key={index}
-            marginTop={0.001}
-            marginLeft={2}
-          >
-            <Grid item xs={3.5}>
-              <TextField
-                label={`Level`}
-                type="number"
-                name="level"
-                value={formData.level}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={3.5}>
-              <TextField
-                label={`Members`}
-                type="number"
-                name="member"
-                value={formData.member}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={3.5}>
-              <TextField
-                label={`Pricing (€)`}
-                type="number"
-                name="pricing"
-                value={formData.pricing}
-                onChange={handleInputChange}
-                onBlur={calculateSrvcBudget}
-                fullWidth
-              />
-            </Grid>
-
-            <Grid item xs={0.5}>
-              <IconButton
-                color="error"
-                onClick={() => onRemoveMember(index)}
-                disabled={memberData.length === 1}
-                style={{
-                  backgroundColor: "Background",
-                  borderRadius: "50%",
-                  width: "26px",
-                  height: "26px",
-                  padding: "0",
-                  marginTop: "15px",
-                  marginLeft: "15px",
-                }}
-              >
-                <RemoveIcon />
-              </IconButton>
-            </Grid>
-
-            <Grid item xs={0.5}>
-              <IconButton
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={onAddMember}
-                style={{
-                  backgroundColor: "Background",
-                  borderRadius: "50%",
-                  width: "26px",
-                  height: "26px",
-                  padding: "0",
-                  marginTop: "15px",
-                  marginLeft: "15px",
-                }}
-              >
-                <AddIcon />
-              </IconButton>
-            </Grid>
+      {memberData.map((member, index) => (
+        <Grid
+          container
+          spacing={1}
+          key={index}
+          marginTop={0.001}
+          marginLeft={2}
+        >
+          <Grid item xs={3.5}>
+            <TextField
+              label={`Level`}
+              type="number"
+              name="level"
+              value={member.level}
+              onChange={(e) => handleInputChange(e, index)}
+              fullWidth
+            />
           </Grid>
-        ))}
+          <Grid item xs={3.5}>
+            <TextField
+              label={`Members`}
+              type="number"
+              name="members"
+              value={member.members}
+              onChange={(e) => handleInputChange(e, index)}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={3.5}>
+            <TextField
+              label={`Pricing (€)`}
+              type="number"
+              name="pricing"
+              value={member.pricing}
+              onChange={(e) => handleInputChange(e, index)}
+              onBlur={calculateSrvcBudget}
+              fullWidth
+            />
+          </Grid>
 
-        <Grid item xs={3.5} marginTop={0.5}>
-          <Typography variant="body1">Miscellaneous Details</Typography>
+          <Grid item xs={0.5}>
+            <IconButton
+              color="error"
+              onClick={() => onRemoveMember(index)}
+              disabled={memberData.length === 1}
+              style={{
+                backgroundColor: "Background",
+                borderRadius: "50%",
+                width: "26px",
+                height: "26px",
+                padding: "0",
+                marginTop: "15px",
+                marginLeft: "15px",
+              }}
+            >
+              <RemoveIcon />
+            </IconButton>
+          </Grid>
+
+          <Grid item xs={0.5}>
+            <IconButton
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={onAddMember}
+              style={{
+                backgroundColor: "Background",
+                borderRadius: "50%",
+                width: "26px",
+                height: "26px",
+                padding: "0",
+                marginTop: "15px",
+                marginLeft: "15px",
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+          </Grid>
         </Grid>
+      ))}
 
-        {/* Justification */}
-        <Grid item xs={12} marginBottom={1}>
-          <Grid container spacing={1} marginLeft={2}>
-            <Grid item xs={3.5} alignSelf={"center"}>
-              <TextField
-                label="Pricing (€)"
-                name="miscPricing"
-                value={formData.miscPricing}
-                onChange={handleInputChange}
-                onBlur={calculateMiscBudget}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={6.7}>
-              <TextField
-                label="Justification for Miscellaneous Cost"
-                name="justification"
-                value={formData.justification}
-                onChange={handleInputChange}
-                fullWidth
-              />
-            </Grid>
+      <Grid item xs={3.5} marginTop={0.8}>
+        <Typography variant="body1">Miscellaneous Details</Typography>
+      </Grid>
+
+      {/* Justification */}
+      <Grid item xs={12} marginBottom={1}>
+        <Grid container spacing={1} marginLeft={2} marginTop={0.001}>
+          <Grid item xs={3.5} alignSelf={"center"}>
+            <TextField
+              label="Pricing (€)"
+              name="miscPricing"
+              value={formData.miscPricing}
+              onChange={handleInputChangeMisc}
+              onBlur={calculateMiscBudget}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6.7}>
+            <TextField
+              label="Justification for Miscellaneous Cost"
+              name="justification"
+              value={formData.justification}
+              onChange={handleInputChangeMisc}
+              fullWidth
+            />
           </Grid>
         </Grid>
       </Grid>
