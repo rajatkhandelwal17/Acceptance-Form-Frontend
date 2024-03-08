@@ -159,7 +159,7 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
                 height: "26px",
                 padding: "0",
                 marginTop: "15px",
-                marginLeft: "15px",
+                marginLeft: "10px",
               }}
             >
               <RemoveIcon />
@@ -178,7 +178,7 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
                 height: "26px",
                 padding: "0",
                 marginTop: "15px",
-                marginLeft: "15px",
+                marginLeft: "5px",
               }}
             >
               <AddIcon />
