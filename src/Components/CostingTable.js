@@ -1,7 +1,7 @@
 import React from "react";
 import { Grid, Paper, TextField, Typography } from "@mui/material";
 
-const CostingTable = ({ formData, setFormData }) => {
+const CostingTable = ({ formData, setFormData, isDatafetched }) => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -61,6 +61,9 @@ const CostingTable = ({ formData, setFormData }) => {
                 name="srvcCost"
                 value={formData.srvcCost}
                 onChange={handleInputChange}
+                disabled={isDatafetched}
+                onBlur={calculateTotal}
+                // onClick={calculateTotal}
                 fullWidth
               />
             </Grid>
@@ -99,6 +102,8 @@ const CostingTable = ({ formData, setFormData }) => {
                 value={formData.miscCost}
                 onChange={handleInputChange}
                 onBlur={calculateTotal}
+                // onClick={calculateTotal}
+                disabled={isDatafetched}
                 fullWidth
               />
             </Grid>

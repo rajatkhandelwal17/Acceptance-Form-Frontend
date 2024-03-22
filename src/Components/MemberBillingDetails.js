@@ -1,13 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid, IconButton, Paper, TextField, Typography } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
-const MemberBillingDetails = ({ formData, setFormData }) => {
+const MemberBillingDetails = ({
+  formData,
+  setFormData,
+  isDatafetched,
+  justification,
+  levelInfo,
+  handleUpdateBilling,
+}) => {
   const [memberData, setMemberData] = useState([
     { level: "", members: "", pricing: "" },
   ]);
+  const [updateBilling, setUpdateBilling] = useState(false);
+
+  useEffect(() => {
+    if (isDatafetched) {
+      const formattedData = levelInfo.map((info) => ({
+        level: info.level,
+        members: info.member,
+        pricing: info.price,
+      }));
+      formattedData.sort((a, b) => a.level - b.level);
+      setMemberData(formattedData);
+    }
+  }, [isDatafetched, levelInfo]);
+
+  useEffect(() => {
+    if (updateBilling) {
+      handleUpdateBilling(true);
+    }
+  }, [updateBilling, handleUpdateBilling]);
 
   const handleInputChange = (e, index) => {
     const { name, value } = e.target;
@@ -35,6 +61,9 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
   };
 
   const calculateSrvcBudget = () => {
+    if (isDatafetched) {
+      setUpdateBilling(true);
+    }
     let totalServiceCost = 0;
 
     memberData.forEach((member) => {
@@ -48,7 +77,7 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
     formData.srvcMonthlyCost = totalServiceCost;
 
     // Update remaining budget
-    const remainingBudget = formData.srvcCost - totalServiceCost;
+    const remainingBudget = formData.srvcCost - formData.srvcMonthlyCost;
     formData.srvcRemainBdgt = remainingBudget;
 
     // Update levelInfo array
@@ -69,6 +98,9 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
   };
 
   const calculateMiscBudget = () => {
+    if (isDatafetched) {
+      setUpdateBilling(true);
+    }
     const monthly_miscellaneous = formData.miscPricing;
     formData.miscMonthlyBdgt = formData.miscPricing;
 
@@ -205,13 +237,25 @@ const MemberBillingDetails = ({ formData, setFormData }) => {
             />
           </Grid>
           <Grid item xs={6.7}>
-            <TextField
-              label="Justification for Miscellaneous Cost"
-              name="justification"
-              value={formData.justification}
-              onChange={handleInputChangeMisc}
-              fullWidth
-            />
+            {isDatafetched ? (
+              <TextField
+                label="Justification for Miscellaneous Cost"
+                name="justification"
+                value={justification}
+                onChange={handleInputChange}
+                onBlur={calculateMiscBudget}
+                fullWidth
+              />
+            ) : (
+              <TextField
+                label="Justification for Miscellaneous Cost"
+                name="justification"
+                value={formData.justification}
+                onChange={handleInputChangeMisc}
+                onBlur={calculateMiscBudget}
+                fullWidth
+              />
+            )}
           </Grid>
         </Grid>
       </Grid>
